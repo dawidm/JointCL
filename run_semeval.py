@@ -18,7 +18,7 @@ import pickle
 from time import strftime,localtime
 
 from sklearn.metrics import classification_report
-gpu_id = 3
+gpu_id = 0
 torch.cuda.set_device(gpu_id)
 os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
 
