@@ -19,8 +19,9 @@ from time import strftime,localtime
 
 from sklearn.metrics import classification_report
 gpu_id = 0
+gpu_id_kmeans = 1
 torch.cuda.set_device(gpu_id)
-os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
+#os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
 
 class Instructor(object):
     def __init__(self,opt):
@@ -118,7 +119,7 @@ class Instructor(object):
             res = faiss.StandardGpuResources()
             cfg = faiss.GpuIndexFlatConfig()
             cfg.useFloat16 = False
-            cfg.device = gpu_id
+            cfg.device = gpu_id_kmeans
             index = faiss.GpuIndexFlatL2(res, d, cfg)
 
             clus.train(x, index)
