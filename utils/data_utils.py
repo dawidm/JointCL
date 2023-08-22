@@ -933,7 +933,7 @@ class NaacalDataset():
         return self.all_data
 
 class ZeroshotDataset():
-    def __init__(self, data_dir, tokenizer, opt,data_type ):
+    def __init__(self, data_dir, tokenizer, opt,data_type, all_sample_types=False):
 
         self.data_dir = data_dir
         self.tokenizer = tokenizer
@@ -944,6 +944,7 @@ class ZeroshotDataset():
         self.data_type = data_type
         self.type = opt.type
         self.all_data = self._get_all_data()
+        self.all_sample_types = all_sample_types
 
 
     def __getitem__(self, index):
@@ -1008,7 +1009,7 @@ class ZeroshotDataset():
         else:
             for i in data_file.index:
                 row = data_file.iloc[i]
-                if int(row['seen?']) == self.type:
+                if int(row['seen?']) == self.type or self.all_sample_types:
                     aspect = row['topic_str']
 
                     text = split_punc(row['text_s'])

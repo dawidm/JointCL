@@ -42,9 +42,14 @@ class Instructor(object):
             self.testset = pickle.load(open(test_file_name, 'rb'))
         except:
 
-            self.trainset = ZeroshotDataset(data_dir=self.opt.train_dir,tokenizer=tokenizer, opt=self.opt,data_type = 'train')
-            self.valset = ZeroshotDataset(data_dir=self.opt.dev_dir, tokenizer=tokenizer, opt=self.opt,data_type = 'dev')
-            self.testset = ZeroshotDataset(data_dir=self.opt.test_dir,tokenizer=tokenizer, opt=self.opt,data_type = 'test')
+            self.trainset = ZeroshotDataset(data_dir=self.opt.train_dir,tokenizer=tokenizer,
+                                            opt=self.opt, data_type='train')
+            self.valset = ZeroshotDataset(data_dir=self.opt.dev_dir, tokenizer=tokenizer,
+                                          opt=self.opt, data_type='dev')
+            self.testset = ZeroshotDataset(data_dir=self.opt.test_dir, tokenizer=tokenizer,
+                                           opt=self.opt, data_type='test')
+            self.testset_full = ZeroshotDataset(data_dir=self.opt.test_dir, tokenizer=tokenizer,
+                                                opt=self.opt, data_type='test', all_sample_types=True)
             pickle.dump(self.trainset, open(train_file_name, 'wb'))
             pickle.dump(self.valset, open(dev_file_name, 'wb'))
             pickle.dump(self.valset, open(test_file_name, 'wb'))
@@ -66,14 +71,15 @@ class Instructor(object):
         best_acc, best_f1 = self.train_traditon()
         # opt.output_dir = '/home/zhuqinglin/Pycharm/EMNLP2021/Zero-Shot-Contrastive-v2/bert-scl-vast/bert-scl-prototype/zeroshot/2021-09-12 01-57-03/'
         state_dict_dir = opt.output_dir + "/state_dict"
-        print("\n\nReload the best model with best acc {} from path {}\n\n".format(best_acc, state_dict_dir))
-        ckpt = torch.load(os.path.join(state_dict_dir, "best_acc_model.bin"))
-        self.model.load_state_dict(ckpt)
-        acc,f1 = self.test_tradition()
+        # print("\n\nReload the best model with best acc {} from path {}\n\n".format(best_acc, state_dict_dir))
+        # ckpt = torch.load(os.path.join(state_dict_dir, "best_acc_model.bin"))
+        # self.model.load_state_dict(ckpt)
+        # acc,f1 = self.test_tradition()
 
         print("\n\nReload the best model with best f1 {} from path {}\n\n".format(best_f1, state_dict_dir))
         ckpt = torch.load(os.path.join(state_dict_dir, "best_f1_model.bin"))
         self.model.load_state_dict(ckpt)
+        self.test_tradition_full()
         acc,f1 = self.test_tradition()
 
         return acc,f1
@@ -347,6 +353,52 @@ class Instructor(object):
         self.model.eval()
         sampler = RandomSampler(self.testset)
         test_loader = DataLoader(dataset=self.testset, batch_size=self.opt.eval_batch_size, sampler=sampler)
+        print(f'testing on ZS test set ({self.testset} samples)')
+        all_labels = []
+        all_logits = []
+        eval_loss = 0
+        cnt = 0
+        for i_batch, batch in enumerate(test_loader):
+            input_features = [batch[feat_name].to(self.opt.device) for feat_name in self.opt.input_features]
+            true_stance = batch['polarity']
+            if opt.n_gpus > 0:
+                true_stance = true_stance.to(self.opt.device)
+            with torch.no_grad():
+                if 'scl' in self.opt.model_name:
+                    try:
+                        pickle.dump(self.cluster_result, open(opt.output_dir + '/cluster_result', 'wb'))
+                    except:
+                        self.cluster_result = pickle.load(open(opt.output_dir +'/cluster_result', 'rb'))
+                    logits,_ = self.model(input_features+self.cluster_result)
+                    loss = self.logits_criterion(logits, true_stance)
+                else:
+                    logits = self.model(input_features)
+                    loss = self.criterion(logits, true_stance)
+            if self.opt.n_gpus > 1:
+                loss = loss.mean().item()
+            else:
+                loss = loss.item()
+            eval_loss += loss
+            labels = true_stance.detach().cpu().numpy()
+            logits = logits.detach().cpu().numpy()
+            all_labels.append(labels)
+            all_logits.append(logits)
+            cnt = cnt + 1
+        all_labels = np.concatenate(all_labels, axis=0)
+        all_logits = np.concatenate(all_logits, axis=0)
+        preds = all_logits.argmax(axis=1)
+        acc = accuracy_score(y_true=all_labels, y_pred=preds)
+        f1 = f1_score(all_labels, preds, average='macro')
+        print(classification_report(all_labels, preds, digits=6))
+        print("ZS Test Acc: {} F1:{}".format(acc, f1))
+        self.model.train()
+        return acc,f1
+
+    def test_tradition_full(self):
+        self.model.eval()
+        sampler = RandomSampler(self.testset)
+        test_loader = DataLoader(dataset=self.testset_full, batch_size=self.opt.eval_batch_size, sampler=sampler)
+        print(f'testing on full test set ({self.testset_full} samples)')
         all_labels = []
         all_logits = []
         eval_loss = 0
