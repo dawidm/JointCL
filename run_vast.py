@@ -36,11 +36,13 @@ class Instructor(object):
         train_file_name = './vast_train1.dat'
         dev_file_name = './vast_dev1.dat'
         test_file_name = './vast_test1.dat'
-        # try:
-        #     self.trainset = pickle.load(open(train_file_name, 'rb'))
-        #     self.valset = pickle.load(open(dev_file_name, 'rb'))
-        #     self.testset = pickle.load(open(test_file_name, 'rb'))
-        # except:
+        testfull_file_name = './vast_testfull1.dat'
+        try:
+            self.trainset = pickle.load(open(train_file_name, 'rb'))
+            self.valset = pickle.load(open(dev_file_name, 'rb'))
+            self.testset = pickle.load(open(test_file_name, 'rb'))
+            self.testset_full = pickle.load(open(testfull_file_name, 'rb'))
+        except:
 
         self.trainset = ZeroshotDataset(data_dir=self.opt.train_dir,tokenizer=tokenizer,
                                         opt=self.opt, data_type='train')
@@ -50,9 +52,10 @@ class Instructor(object):
                                        opt=self.opt, data_type='test')
         self.testset_full = ZeroshotDataset(data_dir=self.opt.test_dir, tokenizer=tokenizer,
                                             opt=self.opt, data_type='test', all_sample_types=True)
-        # pickle.dump(self.trainset, open(train_file_name, 'wb'))
-        # pickle.dump(self.valset, open(dev_file_name, 'wb'))
-        # pickle.dump(self.valset, open(test_file_name, 'wb'))
+        pickle.dump(self.trainset, open(train_file_name, 'wb'))
+        pickle.dump(self.valset, open(dev_file_name, 'wb'))
+        pickle.dump(self.valset, open(test_file_name, 'wb'))
+        pickle.dump(self.valset, open(testfull_file_name, 'wb'))
 
 
         if 'scl' in self.opt.model_name:
