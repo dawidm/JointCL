@@ -943,8 +943,8 @@ class ZeroshotDataset():
         self.all_data = []
         self.data_type = data_type
         self.type = opt.type
-        self.all_data = self._get_all_data()
         self.all_sample_types = all_sample_types
+        self.all_data = self._get_all_data()
 
 
     def __getitem__(self, index):
