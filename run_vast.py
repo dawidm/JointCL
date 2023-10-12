@@ -43,15 +43,14 @@ class Instructor(object):
             self.testset = pickle.load(open(test_file_name, 'rb'))
             self.testset_full = pickle.load(open(testfull_file_name, 'rb'))
         except:
-
-        self.trainset = ZeroshotDataset(data_dir=self.opt.train_dir,tokenizer=tokenizer,
-                                        opt=self.opt, data_type='train')
-        self.valset = ZeroshotDataset(data_dir=self.opt.dev_dir, tokenizer=tokenizer,
-                                      opt=self.opt, data_type='dev')
-        self.testset = ZeroshotDataset(data_dir=self.opt.test_dir, tokenizer=tokenizer,
-                                       opt=self.opt, data_type='test')
-        self.testset_full = ZeroshotDataset(data_dir=self.opt.test_dir, tokenizer=tokenizer,
-                                            opt=self.opt, data_type='test', all_sample_types=True)
+            self.trainset = ZeroshotDataset(data_dir=self.opt.train_dir,tokenizer=tokenizer,
+                                            opt=self.opt, data_type='train')
+            self.valset = ZeroshotDataset(data_dir=self.opt.dev_dir, tokenizer=tokenizer,
+                                          opt=self.opt, data_type='dev')
+            self.testset = ZeroshotDataset(data_dir=self.opt.test_dir, tokenizer=tokenizer,
+                                           opt=self.opt, data_type='test')
+            self.testset_full = ZeroshotDataset(data_dir=self.opt.test_dir, tokenizer=tokenizer,
+                                                opt=self.opt, data_type='test', all_sample_types=True)
         pickle.dump(self.trainset, open(train_file_name, 'wb'))
         pickle.dump(self.valset, open(dev_file_name, 'wb'))
         pickle.dump(self.valset, open(test_file_name, 'wb'))
