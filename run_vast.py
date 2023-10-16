@@ -53,8 +53,8 @@ class Instructor(object):
                                                 opt=self.opt, data_type='test', all_sample_types=True)
         pickle.dump(self.trainset, open(train_file_name, 'wb'))
         pickle.dump(self.valset, open(dev_file_name, 'wb'))
-        pickle.dump(self.valset, open(test_file_name, 'wb'))
-        pickle.dump(self.valset, open(testfull_file_name, 'wb'))
+        pickle.dump(self.testset, open(test_file_name, 'wb'))
+        pickle.dump(self.testset_full, open(testfull_file_name, 'wb'))
 
 
         if 'scl' in self.opt.model_name:
