@@ -399,7 +399,7 @@ class Instructor(object):
 
     def test_tradition_full(self):
         self.model.eval()
-        sampler = RandomSampler(self.testset)
+        sampler = RandomSampler(self.testset_full)
         test_loader = DataLoader(dataset=self.testset_full, batch_size=self.opt.eval_batch_size, sampler=sampler)
         print(f'testing on full test set ({self.testset_full} samples)')
         all_labels = []
