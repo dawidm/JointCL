@@ -74,10 +74,10 @@ class Instructor(object):
         best_acc, best_f1 = self.train_traditon()
         # opt.output_dir = '/home/zhuqinglin/Pycharm/EMNLP2021/Zero-Shot-Contrastive-v2/bert-scl-vast/bert-scl-prototype/zeroshot/2021-09-12 01-57-03/'
         state_dict_dir = opt.output_dir + "/state_dict"
-        # print("\n\nReload the best model with best acc {} from path {}\n\n".format(best_acc, state_dict_dir))
-        # ckpt = torch.load(os.path.join(state_dict_dir, "best_acc_model.bin"))
-        # self.model.load_state_dict(ckpt)
-        # acc,f1 = self.test_tradition()
+        print("\n\nReload the best model with best acc {} from path {}\n\n".format(best_acc, state_dict_dir))
+        ckpt = torch.load(os.path.join(state_dict_dir, "best_acc_model.bin"))
+        self.model.load_state_dict(ckpt)
+        acc,f1 = self.test_tradition()
 
         print("\n\nReload the best model with best f1 {} from path {}\n\n".format(best_f1, state_dict_dir))
         ckpt = torch.load(os.path.join(state_dict_dir, "best_f1_model.bin"))
